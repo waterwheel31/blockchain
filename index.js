@@ -1,15 +1,6 @@
 const express = require('express')
 const app = express()
-
-app.get('/', (req, res) => res.send('Hello World!'))
-
-app.listen(3000, () => console.log('Example app listening on port 3000!'))
-
-
-/*
-const express = require('express')
-const app = express()
-const simpleChain = require('../simpleChainM');
+const simpleChain = require('simpleChainM');
 
 const blockChain = new simpleChain.Blockchain();
 
@@ -21,6 +12,3 @@ app.get('/', function (req, res) {
 });
 
 app.listen(8000, () => console.log('Example app listening on port 8000!'));
-
-*/
-
