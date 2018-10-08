@@ -1,6 +1,6 @@
-const express = require('express')
-const app = express()
-const simpleChain = require('simpleChainM');
+const express = require('express');
+const app = express();
+const simpleChain = require('simpleChainM.js');
 
 const blockChain = new simpleChain.Blockchain();
 
