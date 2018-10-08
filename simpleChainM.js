@@ -207,7 +207,7 @@ class Blockchain{
 module.exports = {
    Block: Block,
    Blockchain: Blockchain
-}
+};
 
 
 
