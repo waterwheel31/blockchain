@@ -15,7 +15,7 @@ This program has 3 functions as below
 
 Before starting, you need to install following libraries
 * node.js
-* Express 
+* Express.js 
 * Level DB
 * SHA256 
 
