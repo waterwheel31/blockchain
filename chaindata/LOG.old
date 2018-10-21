@@ -1,5 +1,5 @@
-2018/10/17-14:13:25.416 5ddc Recovering log #54
-2018/10/17-14:13:25.416 5ddc Level-0 table #57: started
-2018/10/17-14:13:25.798 5ddc Level-0 table #57: 181 bytes OK
-2018/10/17-14:13:25.842 5ddc Delete type=0 #54
-2018/10/17-14:13:25.842 5ddc Delete type=3 #52
+2018/10/21-03:35:20.289 2eb8 Recovering log #74
+2018/10/21-03:35:20.291 2eb8 Level-0 table #76: started
+2018/10/21-03:35:20.409 2eb8 Level-0 table #76: 181 bytes OK
+2018/10/21-03:35:20.495 2eb8 Delete type=0 #74
+2018/10/21-03:35:20.496 2eb8 Delete type=3 #72

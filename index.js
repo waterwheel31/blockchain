@@ -6,6 +6,11 @@ const port = 8000;
 const blockChain = new simpleChain.Blockchain();
 console.log('new blockChain created');
 
+
+
+app.listen(port, () => console.log('Example app listening on port '+ port + '!'));
+
+
 app.get('/', function (req, res) {
 	let blockHeight = blockChain.showBlockHeight();
 	console.log('block height:'+blockHeight);
@@ -46,6 +51,3 @@ app.get('/block/:text(\\w+)', function (req, res) {
 	let inputId  = req.params.text;
 	res.write('strings');	
 });
-
-
-app.listen(port, () => console.log('Example app listening on port '+ port + '!'));
