@@ -1,5 +1,5 @@
-2018/10/21-03:35:20.289 2eb8 Recovering log #74
-2018/10/21-03:35:20.291 2eb8 Level-0 table #76: started
-2018/10/21-03:35:20.409 2eb8 Level-0 table #76: 181 bytes OK
-2018/10/21-03:35:20.495 2eb8 Delete type=0 #74
-2018/10/21-03:35:20.496 2eb8 Delete type=3 #72
+2018/10/21-21:06:09.105 c24 Recovering log #223
+2018/10/21-21:06:09.106 c24 Level-0 table #226: started
+2018/10/21-21:06:09.217 c24 Level-0 table #226: 530 bytes OK
+2018/10/21-21:06:09.284 c24 Delete type=0 #223
+2018/10/21-21:06:09.285 c24 Delete type=3 #221

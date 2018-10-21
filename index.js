@@ -37,11 +37,15 @@ app.get('/block/:id(\\d+)', function (req, res) {
 app.get('/block/', function (req, res) {
 	let blockMessage = req.query.mes;
 	if(blockMessage != null){
-		console.log('type of ' + blockMessage+ ' is '+ typeof blockMessage);
+		console.log('type of block message < ' + blockMessage+ ' > is '+ typeof blockMessage);
+		
 		block = new simpleChain.Block(blockMessage);
 		blockChain.addBlock(block);
+		console.log(block);
 		res.write('mes = ' +blockMessage);	
 		res.end();
+		
+		
 	}
 	
 });
