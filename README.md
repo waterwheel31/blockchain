@@ -1,61 +1,50 @@
-# Blockchain Data
+# Blockchain excercise on node.js 
 
-Blockchain has the potential to change the way that the world approaches data. Develop Blockchain skills by understanding the data model behind Blockchain by developing your own simplified private blockchain.
+Using this repository, you can create a blockchain, and add data on it
 
-## Getting Started
+## Functions
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+This program has 3 functions as below
 
-### Prerequisites
+* Creating blockchain
+* Adding a data on blockchain
+* Checking a data on specific block 
 
-Installing Node and NPM is pretty straightforward using the installer package available from the (Node.js® web site)[https://nodejs.org/en/].
 
-### Configuring your project
+## How to start 
 
-- Use NPM to initialize your project and create package.json to store project dependencies.
+Before starting, you need to install following libraries
+* node.js
+* Express.js 
+* Level DB
+* SHA256 
+
+To run this program, you need to download or clone this repository, and run index.js on node.js as below
+
 ```
-npm init
-```
-- Install crypto-js with --save flag to save dependency to our package.json file
-```
-npm install crypto-js --save
-```
-- Install level with --save flag
-```
-npm install level --save
+>node index.js 
 ```
 
-## Testing
+## Creating blockchain 
 
-To test code:
-1: Open a command prompt or shell terminal after install node.js.
-2: Enter a node session, also known as REPL (Read-Evaluate-Print-Loop).
-```
-node
-```
-3: Copy and paste your code into your node session
-4: Instantiate blockchain with blockchain variable
-```
-let blockchain = new Blockchain();
-```
-5: Generate 10 blocks using a for loop
-```
-for (var i = 0; i <= 10; i++) {
-  blockchain.addBlock(new Block("test data "+i));
-}
-```
-6: Validate blockchain
-```
-blockchain.validateChain();
-```
-7: Induce errors by changing block data
-```
-let inducedErrorBlocks = [2,4,7];
-for (var i = 0; i < inducedErrorBlocks.length; i++) {
-  blockchain.chain[inducedErrorBlocks[i]].data='induced chain error';
-}
-```
-8: Validate blockchain. The chain should now fail with blocks 2,4, and 7.
-```
-blockchain.validateChain();
-```
+launch a browser, go to `localhost:8000` by writing the address on URL bar of the browser. 
+
+Then a block chain will be set up 
+
+
+## Adding a data on blockchain 
+
+By writing an address on the URL bar of the browser, you can add a data on the lastest block on the blockchain
+
+`localhost:8000/block/?mes= XXXXX` 
+
+Please replace XXXXX above by the string data that you would like to add
+
+
+## Checking data on specific block 
+
+By writing an address on the URL bar of the browser, you can get a data on a specific block on the blockchain
+
+`localhost:8000/block/2`
+
+Please replace "2" above by the blocknumber of the block you would like to see

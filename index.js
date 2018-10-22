@@ -26,7 +26,7 @@ app.get('/block/:id(\\d+)', function (req, res) {
 	let inputId  = req.params.id;
 	//res.write('block #'+inputId+ '=');	
 	blockChain.getBlock(inputId).then(function(block){
-		res.json(JSON.parse(JSON.stringify(block)));
+		res.write(JSON.stringify(block));
 		res.end();
 	});
 	
@@ -34,7 +34,15 @@ app.get('/block/:id(\\d+)', function (req, res) {
 	
 });
 
+/*
 app.get('/block/', function (req, res) {
+	let blockMessage = req.query.mes;
+	res.write('mes = ' +blockMessage);	
+	res.end();
+});
+*/
+
+app.post('/block/', function (req, res) {
 	let blockMessage = req.query.mes;
 	if(blockMessage != null){
 		console.log('type of block message < ' + blockMessage+ ' > is '+ typeof blockMessage);
@@ -42,8 +50,8 @@ app.get('/block/', function (req, res) {
 		block = new simpleChain.Block(blockMessage);
 		blockChain.addBlock(block);
 		console.log(block);
-		res.write('mes = ' +blockMessage);	
-		res.end();
+		//res.write('mes = ' +blockMessage);	
+		//res.end();
 		
 		
 	}
