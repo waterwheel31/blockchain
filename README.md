@@ -34,11 +34,13 @@ Then a block chain will be set up
 
 ## Adding a data on blockchain 
 
-By writing an address on the URL bar of the browser, you can add a data on the lastest block on the blockchain
+By writing following comand with POST verb, you can add a data on the lastest block on the blockchain
 
 `localhost:8000/block/?mes= XXXXX` 
 
 Please replace XXXXX above by the string data that you would like to add
+
+There are several ways to post a POST command. One way is using Postman (https://www.getpostman.com/).
 
 
 ## Checking data on specific block 

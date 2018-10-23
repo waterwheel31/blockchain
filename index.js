@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const simpleChain = require('simpleChainM');
+const simpleChain = require('./simpleChainM3');
 const port = 8000;
 
 const blockChain = new simpleChain.Blockchain();
