@@ -25,30 +25,42 @@ class Block{
 |  Class with a constructor for new blockchain 		|
 |  ================================================*/
 
+
 class Blockchain{
   constructor(){
+  
+
+    // confirm the blockchain height 
     
-    // set the height of the blockchain to be 0 - initiallizing
+    this.getBlockHeight().then(function(height){
 
-    this.chain = [];
-    let that = this;
+        console.log('block height = ',height);
 
-    // initialize block height 
-    var init = new Promise (function(resolve, reject){
-      db.put('height',0,function(err){
-      if (err) return console.log('height error'+ err);
-      resolve();
-      });
-    }).then(function(){
-      // create genesis block 
-      let geneBlock = new Block("First block in the chain - Genesis block");
-      console.log('initial block = '+JSON.stringify(geneBlock));
-      geneBlock.height = 1;
+        if (height == null){
+        // set the height of the blockchain to be 0 - initiallizing
 
-      // add genesis block onto the blockchain
-     that.addBlock(geneBlock);
+            this.chain = [];
+            let that = this;
 
+            // initialize block height 
+            var init = new Promise (function(resolve, reject){
+              db.put('height',0,function(err){
+              if (err) return console.log('height error'+ err);
+              resolve();
+              });
+            }).then(function(){
+              // create genesis block 
+              let geneBlock = new Block("First block in the chain - Genesis block");
+              console.log('initial block = '+JSON.stringify(geneBlock));
+              geneBlock.height = 0;
+
+              // add genesis block onto the blockchain
+             that.addBlock(geneBlock);
+
+            });
+        } 
     });
+
 
   }
 
@@ -79,17 +91,17 @@ class Blockchain{
       let parsedBlock = JSON.parse(block);
          
       console.log(block);
-
       console.log ('newBlock height=', newBlock.height, ' blockchain height =', blockchainHeight);
-      newBlock.height = blockchainHeight + 1;
+      newBlock.height = blockchainHeight;
       
-      if (newBlock.height>1){ 
+      if (newBlock.height>0){ 
           newBlock.previousBlockHash = parsedBlock.hash;
           console.log('previous hash = ',parsedBlock.hash);
       }
 
       // Block hash with SHA256 using newBlock and converting to a string
       newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
+
 
       // Adding block object to chain
       db.put(newBlock.height,JSON.stringify(newBlock).toString(),function(err){
@@ -99,10 +111,8 @@ class Blockchain{
       return parsedBlock;
 
     }).then(function(block){
+
       // Block height update
-       // Block height
-       //console.log('newBlock.height= '+newBlock.height);
-      
       db.put('height',blockchainHeight+1,function(err){
         if (err) return console.log('constructor error'+ err);
       });
@@ -138,7 +148,7 @@ class Blockchain{
 
       return new Promise(function(resolve, reject){
         db.get(blockHeight, function(err,value){
-            if (err) return console.log('not found!',err);
+            if (err) return reject(err);
             
             resolve(value);
         });
