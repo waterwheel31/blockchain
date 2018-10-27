@@ -1,11 +1,20 @@
 const express = require('express');
 const app = express();
 const simpleChain = require('./simpleChainM3');
+const bodyParser = require('body-parser');
 const port = 8000;
 
+
+console.log('application started!');
 const blockChain = new simpleChain.Blockchain();
 
 app.listen(port, () => console.log('Example app listening on port '+ port + '!'));
+
+
+
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.text());
+
 
 app.get('/', function (req, res) {
 	res.json('to see a block, please send a GET message to /block/(num)');
@@ -35,14 +44,18 @@ app.get('/block/', function (req, res) {
 });
 */
 
-app.post('/block/:mes', function (req, res) {
-	let blockMessage = req.params.mes;
+app.post('/block/', function (req, res) {
+	let blockMessage = req.body;
+	
 	if(blockMessage != null){
 		console.log('type of block message < ' + blockMessage+ ' > is '+ typeof blockMessage);
 		
+		console.log('before Block(blockMessage)');
 		block = new simpleChain.Block(blockMessage);
+		console.log('after Block(blockMessage)');
 		blockChain.addBlock(block);
-		console.log(block);
+
+		console.log(blockChain);
 		res.json(block);	
 		res.end();
 		

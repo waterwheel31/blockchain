@@ -36,9 +36,9 @@ Then a block chain will be set up
 
 By writing following comand with POST verb, you can add a data on the lastest block on the blockchain
 
-`localhost:8000/block/?mes= XXXXX` 
+`localhost:8000/block/` 
 
-Please replace XXXXX above by the string data that you would like to add
+You can send TEXT message from above.
 
 There are several ways to post a POST command. One way is using Postman (https://www.getpostman.com/).
 
