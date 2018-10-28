@@ -38,7 +38,15 @@ By writing following comand with POST verb, you can add a data on the lastest bl
 
 `localhost:8000/block/` 
 
-You can send TEXT message from above.
+You can send TEXT message from above. 
+
+Be careful not to send in JSON messages. 
+For example, if the body text is "abc", please send like:
+"abc",
+
+not like
+{"body":"abc"}
+
 
 There are several ways to post a POST command. One way is using Postman (https://www.getpostman.com/).
 

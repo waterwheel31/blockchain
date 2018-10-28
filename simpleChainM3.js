@@ -5,7 +5,9 @@
 const SHA256 = require('crypto-js/sha256');
 const level = require('level');
 const chainDB = './chaindata';
+const addressDB = './addressdata';
 const db = level(chainDB);
+const dbStarAddress = level(addressDB);
 
 /* ===== Block Class ==============================
 |  Class with a constructor for block 			   |
@@ -77,59 +79,67 @@ class Blockchain{
     // UTC timestamp
     newBlock.time = new Date().getTime().toString().slice(0,-3);
 
-      console.log('addBlock step 1');
+    console.log('addBlock step 1');
 
-      this.getBlockHeight().then(function(height){
+    return new Promise(function(resolve,reject){
+      that.getBlockHeight().then(function(height){
 
-      console.log('addBlock step 2, height= '+height);
+        console.log('addBlock step 2, height= '+height);
 
-      blockchainHeight = Number(height);
-      console.log('blockchainHeight:',blockchainHeight);
-      
-      let block;
+        blockchainHeight = Number(height);
+        console.log('blockchainHeight:',blockchainHeight);
+        
+        let block;
 
-      if(blockchainHeight==-1){
-        return block;
-      }else{
-        block = that.getBlock(height);
-        return block;
-      }
+        if(blockchainHeight==-1){
+          return block;
+        }else{
+          block = that.getBlock(height);
+          return block;
+        }
 
-    }).then(function(block){
+      }).then(function(block){
 
-      console.log('addBlock step 3');
-         
-      console.log ('newBlock height=', newBlock.height, ' blockchain height =', blockchainHeight);
-      newBlock.height = blockchainHeight+1;
-      
-      // Adding previous block hash
-      if (newBlock.height>0){ 
-          let parsedBlock = JSON.parse(block);
-          newBlock.previousBlockHash = parsedBlock.hash;
-      }
+        console.log('addBlock step 3');
+           
+        console.log ('newBlock height=', newBlock.height, ' blockchain height =', blockchainHeight);
+        newBlock.height = blockchainHeight+1;
+        
+        // Adding previous block hash
+        if (newBlock.height>0){ 
+            let parsedBlock = JSON.parse(block);
+            newBlock.previousBlockHash = parsedBlock.hash;
+        }
 
-      // Adding current block hash with SHA256 using newBlock and converting to a string
-      newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
+        // Adding current block hash with SHA256 using newBlock and converting to a string
+        newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
 
 
-      // Adding the block object to blockchain
-      db.put(newBlock.height,JSON.stringify(newBlock).toString(),function(err){
-        if (err) return console.log('constructor error'+ err);
-      });
+        // Adding the block object to blockchain
+        db.put(newBlock.height,JSON.stringify(newBlock).toString(),function(err){
+          if (err){
+            return console.log('constructor error'+ err);
+          }else{
+            return newBlock;
+          }
+        });
 
-      
-    }).then(function(){
+        console.log('type of newBlock=',typeof newBlock);
+        return newBlock;
+        
+      }).then(function(newBlock){
 
-      // Block height update
+        // Block height update
 
-      console.log('addBlock step 4, BCheight=', blockchainHeight);
-      db.put('height',blockchainHeight+1,function(err){
-        if (err) return console.log('constructor error'+ err);
+        console.log('addBlock step 4, BCheight=', blockchainHeight);
+        db.put('height',blockchainHeight+1,function(err){
+          if (err) return console.log('constructor error'+ err);
+        });
+
+        resolve(newBlock);
+
       });
     });
-
-
-    //this.chain.push(newBlock);
 
   }
 
@@ -232,6 +242,14 @@ class Blockchain{
       } else {
         console.log('No errors detected');
       }
+    }
+
+    addAddress(address,validity){
+
+      dbStarAddress.put(address,validity,function(err){
+        if (err) return console.log('constructor error'+ err);
+      });
+
     }
 
 
