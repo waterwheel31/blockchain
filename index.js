@@ -20,6 +20,8 @@ app.use(bodyParser.text());
 app.use(bodyParser.json());
 
 
+
+
 app.get('/', function (req, res) {
 	res.json('to see a block, please send a GET message to /block/(num)');
 	res.end();
@@ -63,29 +65,6 @@ app.post('/block/', function (req, res) {
 	}
 	
 });
-
-app.post('/block2/', function (req, res) {
-	let blockMessage = req.body;
-
-	if(blockMessage != null){
-		
-		console.log('before Block(blockMessage)');
-		block = new simpleChain.Block(blockMessage);
-		console.log('after Block(blockMessage)');
-		blockChain.addBlock(block).then(function(newBlock){
-
-			res.json(newBlock);	
-			res.end();
-
-		}).catch(function(e){
-		res.json('an error occured');
-		res.end();
-		});
-	
-	}
-	
-});
-
 
 
 app.get('/block/:text(\\w+)', function (req, res) {
@@ -166,4 +145,77 @@ app.post('/message-signature/validate/',function(req,res){
 		res.end();
 	}
 
-})
+});
+
+app.post('/block2/', function (req, res) {
+
+	// ++++ Receiving the body data	
+	var body = req.body;
+
+	// ++++ Checking for address validity
+
+	blockChain.validateAddress(body['address']).then(function(validation){
+		console.log('address validation=',validation);
+
+		if (validation =='valid' || validation>=0){
+
+			// ++++ Creating new block to be added
+			var newBlockBody = {};
+			newBlockBody.address = body['address']; 
+			newBlockBody.star = {};
+			newBlockBody.star.dec   = body['star']['dec'];
+			newBlockBody.star.ra    = body['star']['ra'];
+			newBlockBody.star.mag 	= body['star']['mag'];
+			newBlockBody.star.con 	= body['star']['con'];
+
+			var buf = Buffer.from(body['star']['story'],'ascii');
+			newBlockBody.star.story = buf.toString('hex');
+
+			let newBlock = new simpleChain.Block(newBlockBody);
+
+
+			// ++++ Adding the block and HTTP response
+			
+			blockChain.addBlock(newBlock).then(function(addedBlock){
+				
+				// adding blockheight for each address 
+				console.log('height for address is:',addedBlock['height']);
+				blockChain.addHeightForAddress(body['address'],addedBlock['height']);
+
+				res.json(addedBlock);
+				res.end();
+			}).catch(function(e){
+				res.json('an error occured!');
+				res.end();
+			});
+
+		}
+	}).catch(function(e){
+				res.json('that address is not valid');
+				res.end();
+	});
+
+});
+
+
+app.get('/stars/address/:ADDRESS', function (req, res) {
+	
+	blockChain.validateAddress(req.params.ADDRESS).then(function(height){
+		console.log('height=',height);
+		return blockChain.getBlock(height);	
+	}).then(function(block){
+
+		var parsedBlock = JSON.parse(block);
+		var encodedStory = Buffer.from(parsedBlock.body.star.story,'hex');
+		
+		parsedBlock.body.star.story = encodedStory.toString('ascii');
+		
+		res.json(parsedBlock);
+		res.end();
+
+	}).catch(function(e){
+		res.json('some error has occured');
+		res.end();
+	});
+
+});

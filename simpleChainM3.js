@@ -124,7 +124,6 @@ class Blockchain{
           }
         });
 
-        console.log('type of newBlock=',typeof newBlock);
         return newBlock;
         
       }).then(function(newBlock){
@@ -249,9 +248,28 @@ class Blockchain{
       dbStarAddress.put(address,validity,function(err){
         if (err) return console.log('constructor error'+ err);
       });
-
     }
 
+    addHeightForAddress(address,height){
+
+      dbStarAddress.put(address,height,function(err){
+        if (err) return console.log('constructor error'+ err);
+      });
+    }
+
+
+    validateAddress(address){
+
+      let dbKey = address;
+      return new Promise(function(resolve, reject){
+        dbStarAddress.get(dbKey, function(err,value){
+            if (err) return reject(err);
+            resolve(value);
+        });
+      });
+
+
+    }
 
 }
 
