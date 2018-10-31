@@ -111,6 +111,12 @@ Send GET to
 
 /stars/address/<YOUR WALLET ADDRESS>
 
+or 
+
+/stars/hash/<BLOCK HASH>
+
+
+
 Then you can see registered informaiton on the blockchain. The output will be as below: 
 
 {

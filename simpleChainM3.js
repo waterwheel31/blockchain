@@ -6,8 +6,10 @@ const SHA256 = require('crypto-js/sha256');
 const level = require('level');
 const chainDB = './chaindata';
 const addressDB = './addressdata';
+const requestWaitingDB = './requestWaiting';
 const db = level(chainDB);
 const dbStarAddress = level(addressDB);
+const dbRequestWaiting = level(requestWaitingDB);
 
 /* ===== Block Class ==============================
 |  Class with a constructor for block 			   |
@@ -150,6 +152,7 @@ class Blockchain{
       return new Promise(function(resolve, reject){
         db.get(dbKey, function(err,value){
             if (err) {
+              console.log(err);
               reject(err);
             }
             else resolve(value);
@@ -170,8 +173,10 @@ class Blockchain{
 
       return new Promise(function(resolve, reject){
         db.get(blockHeight, function(err,value){
-            if (err) return reject(err);
-            
+            if (err) {
+              console.log(err);
+              return reject(err);
+            }
             resolve(value);
         });
       });
@@ -263,12 +268,55 @@ class Blockchain{
       let dbKey = address;
       return new Promise(function(resolve, reject){
         dbStarAddress.get(dbKey, function(err,value){
-            if (err) return reject(err);
+            if (err) {
+              console.log(err);
+              reject(err)
+            };
             resolve(value);
         });
       });
+    }
 
 
+    addWaitingAddress(address,timeStamp){
+      let dbKey = address;
+      let value = timeStamp; 
+
+      return new Promise(function(resolve, reject){
+        dbRequestWaiting.put(dbKey,value,function(err,value){
+          if (err){
+            console.log(err);
+            reject(err);
+          };
+          resolve(value);
+        })
+      })
+    }
+
+    getWaitingAddress(address){
+      let dbKey = address;
+      return new Promise(function(resolve, reject){
+        dbRequestWaiting.get(dbKey,function(err,value){
+          if (err){
+            console.log(err);
+            reject(err);
+          };
+          resolve(value);
+        })
+      })
+    }
+
+    delWaitingAddress(address){
+      let dbKey = address;
+      return new Promise(function(resolve, reject){
+        dbRequestWaiting.del(dbKey,function(err,value){
+          if (err){
+            console.log(err);
+            reject(err);
+          };
+          resolve();
+        })
+      })
     }
 
 }

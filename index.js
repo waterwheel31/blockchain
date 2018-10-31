@@ -39,8 +39,6 @@ app.get('/block/:id(\\d+)', function (req, res) {
 		res.end();
 	});
 	
-
-	
 });
 
 
@@ -84,30 +82,68 @@ app.post('/requestValidation/', function(req,res){
 	var timestamp = new Date().getTime().toString().slice(0,-3);
 	var message = address + ':' + timestamp + ':starResistry';
 
+	let requestTimeStamp ="";
+
+	console.log('checkpoint');
+
 	// Checking existance of the address to avoid duplication, and removing expired items
+	/*
 	for (key in requests){
 		console.log('key= ',key, ' timestamp =',requests[key]);
-		if (key == address) {isExists = 1; }
+		if (key == address) {
+			isExists = 1; 
+			requestTimeStamp = requests[key];
+		}
 		if (timestamp - requests[address] > validateWindowSec){
 			delete requests[key];
 			console.log('deleting ',key, ' due to overtime.');
 		}
 	}
+	*/
 
-	if (isExists == 1){
-		res.write('this address is already registered.');
-		res.end();
+	blockChain.getWaitingAddress(address).then(function(waitTS){
 
-	}else{
+		if (timestamp - waitTS > validateWindowSec){
+			res.write('deleting ',key, ' due to overtime.');
+			delWaitingAddress(address);
+			res.end();
+		}
+		
+		else {
+
+			responseString.address = address;
+			responseString.requestTimeStamp = waitTS;
+			responseString.message= message;
+			responseString.validationWindow = validateWindowSec - (timestamp-waitTS);
+
+			res.json(responseString);
+			res.end();
+
+
+		}
+
+		
+
+
+
+	}).catch(function(e){
+
 		responseString.address = address;
 		responseString.requestTimeStamp = timestamp;
 		responseString.message= message;
+		responseString.validationWindow = validateWindowSec;
 
 		// adding address to waiting list 
-		requests[address] = timestamp;
+		
+		blockChain.addWaitingAddress(address,timestamp);
+
 		res.json(responseString);
 		res.end();
-	}
+
+
+	});
+
+
 
 });
 
@@ -121,11 +157,9 @@ app.post('/message-signature/validate/',function(req,res){
 	var signiture = body['signature'];
 	var timeNow = new Date().getTime().toString().slice(0,-3);
 
-	if (requests[address] == null ){
-		res.write('your address request is already expired. Please request again.');
-		res.end();
-	}else{
-		var timestamp = requests[address];
+	blockChain.getWaitingAddress(address).then(function(waitTS){
+
+		var timestamp = waitTS;
 		var message = address + ':' + timestamp + ':starResistry';
 		responseString.address = address;
 		responseString.requestTimeStamp = timestamp;
@@ -143,7 +177,14 @@ app.post('/message-signature/validate/',function(req,res){
 		res.json(responseString);
 
 		res.end();
-	}
+
+
+	}).catch(function(e){
+		res.write('your address request is already expired or not exist. Please request again.');
+		res.end();
+
+	});
+
 
 });
 
@@ -159,6 +200,7 @@ app.post('/block2/', function (req, res) {
 
 		if (validation =='valid' || validation>=0){
 
+			
 			// ++++ Creating new block to be added
 			var newBlockBody = {};
 			newBlockBody.address = body['address']; 
@@ -170,6 +212,23 @@ app.post('/block2/', function (req, res) {
 
 			var buf = Buffer.from(body['star']['story'],'ascii');
 			newBlockBody.star.story = buf.toString('hex');
+
+
+			// Checking the input 
+			if (newBlockBody.star.dec==""){
+				res.write('please fill dec');
+				res.end();
+			}
+			if (newBlockBody.star.ra==""){
+				res.write('please fill ra');
+				res.end();
+			}
+			if (newBlockBody.star.story.bytes>500){
+				res.write('maximum length of story is 500 bytes');
+				res.end();
+			}
+
+
 
 			let newBlock = new simpleChain.Block(newBlockBody);
 
@@ -191,7 +250,8 @@ app.post('/block2/', function (req, res) {
 
 		}
 	}).catch(function(e){
-				res.json('that address is not valid');
+				console.log(e);
+				res.json('the address is not valid');
 				res.end();
 	});
 
@@ -208,7 +268,7 @@ app.get('/stars/address/:ADDRESS', function (req, res) {
 		var parsedBlock = JSON.parse(block);
 		var encodedStory = Buffer.from(parsedBlock.body.star.story,'hex');
 		
-		parsedBlock.body.star.story = encodedStory.toString('ascii');
+		parsedBlock.body.star.storyDecoded = encodedStory.toString('ascii');
 		
 		res.json(parsedBlock);
 		res.end();
@@ -217,5 +277,40 @@ app.get('/stars/address/:ADDRESS', function (req, res) {
 		res.json('some error has occured');
 		res.end();
 	});
+
+});
+
+
+app.get('/stars/hash/:HASH', function (req, res) {
+	
+	let hash = req.params.HASH; 
+
+	blockChain.getBlockHeight().then(function(height){
+	
+		for (let i=0; i<=height;i++){
+			blockChain.getBlock(i).then(function(block){
+				let parsedBlock = JSON.parse(block);
+				//console.log('height:',i,' hash=',parsedBlock.hash, hash);
+				if (parsedBlock.hash == hash){
+					console.log('hash is matched at:',i);
+					res.json(parsedBlock);
+					return; 
+				}
+	
+			}).catch(function(e){
+				console.log(e);
+				return e;
+			});
+		}
+
+	}).then(function(){
+		console.log('checkpoint2');
+	}).catch(function(e){
+		console.log('checkpoint3');
+		console.log(e);
+		//res.write(e);
+		res.end();
+	});
+
 
 });
