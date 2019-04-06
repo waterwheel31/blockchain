@@ -301,6 +301,7 @@ class Blockchain{
             console.log(err);
             reject(err);
           };
+          console.log('value:',value)
           resolve(value);
         })
       })

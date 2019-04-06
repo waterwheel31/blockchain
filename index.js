@@ -2,8 +2,7 @@ const express = require('express');
 const app = express();
 const simpleChain = require('./simpleChainM3');
 const bodyParser = require('body-parser');
-// const bitcoinMessage = require('bitcoinjs-message');
-
+const bitcoinMessage = require('bitcoinjs-message');
 
 const port = 8000;
 const validateWindowSec = 300;
@@ -20,8 +19,6 @@ app.use(bodyParser.text());
 app.use(bodyParser.json());
 
 
-
-
 // GET message for no parameters
 app.get('/', function (req, res) {
 	res.json('to see a block, please send a GET message to /block/(num)');
@@ -35,9 +32,18 @@ app.get('/block/:id(\\d+)', function (req, res) {
 	let inputId  = req.params.id;
 	
 	blockChain.getBlock(inputId).then(function(block){
-		res.json(JSON.parse(block));
+		console.log('getBlock!');
+
+		block = JSON.parse(block);
+
+		var encodedStory = Buffer.from(block.body.star.story,'hex');
+		block.body.star.storyDecoded = encodedStory.toString('ascii');
+		console.log('block:',block);
+
+		res.json(block);
 		res.end();
 	}).catch(function(e){
+		console.log(e);
 		res.json('that block cannot be found!');
 		res.end();
 	});
@@ -52,14 +58,30 @@ app.get('/block/:text(\\w+)', function (req, res) {
 
 
 
-app.post('/block/', function (req, res) {
-	let blockMessage = req.body;
+/* app.post('/block/', function (req, res) {
+	let blockMessage = JSON.parse(req.body);
 
 	console.log('blockMessage', blockMessage);
 	console.log('blockMessage length', blockMessage.length);
-	console.log('params', req.params);
+	console.log('body', blockMessage.star.dec);
+
+	var dec    = blockMessage.star.dec;
+	var ra     = blockMessage.star.ra;
+	var story  = blockMessage.star.story;
+
+	if (dec == null || ra== null) {
+		res.json('please write both dec and re!');
+		res.end();
+	}
+
+	max_length = 250; 
+
+	if (story.length > max_length) {
+		res.json('maximum length of story is 250!');
+		res.end();
+	}
 	
-	if(blockMessage != null && blockMessage.length > 0){
+	if(blockMessage != null ){
 		
 		console.log('before Block(blockMessage)');
 		block = new simpleChain.Block(blockMessage);
@@ -76,7 +98,7 @@ app.post('/block/', function (req, res) {
 	}
 	
 });
-
+*/
 
 // Post message with /requestValidation/ 
 
@@ -85,31 +107,23 @@ app.post('/requestValidation/', function(req,res){
 	var isExists = 0; 
 
 	var responseString ={};
-	var body = req.body;
+	var body = JSON.parse(req.body);
 	var address = body['address'];
 	var timestamp = new Date().getTime().toString().slice(0,-3);
-	var message = address + ':' + timestamp + ':starResistry';
 
 	let requestTimeStamp ="";
 
 	console.log('checkpoint');
-
-	// Checking existance of the address to avoid duplication, and removing expired items
-	/*
-	for (key in requests){
-		console.log('key= ',key, ' timestamp =',requests[key]);
-		if (key == address) {
-			isExists = 1; 
-			requestTimeStamp = requests[key];
-		}
-		if (timestamp - requests[address] > validateWindowSec){
-			delete requests[key];
-			console.log('deleting ',key, ' due to overtime.');
-		}
-	}
-	*/
+	//console.log('body:',body); 
+	//console.log('address:',address); 
+	//console.log('timestamp:',timestamp); 
 
 	blockChain.getWaitingAddress(address).then(function(waitTS){
+
+		console.log('address:',address); 
+		console.log('timestamp:',timestamp); 
+
+		var message = address + ':' + waitTS + ':starResistry';
 
 		if (timestamp - waitTS > validateWindowSec){
 			res.write('deleting ',key, ' due to overtime.');
@@ -129,15 +143,23 @@ app.post('/requestValidation/', function(req,res){
 
 	}).catch(function(e){
 
+		console.log('request Validation, catched error with getWaitingAddress');
+
 		responseString.address = address;
 		responseString.requestTimeStamp = timestamp;
-		responseString.message= message;
-		responseString.validationWindow = validateWindowSec;
+	
+		console.log('address:',address); 
+		console.log('timestamp:',timestamp); 
 
 		// adding address to waiting list 
 		
 		blockChain.addWaitingAddress(address,timestamp);
+		res.end();
 
+	}).catch(function(e){
+
+		console.log('request Validation, catched error with getWaitingAddress 2nd');
+		console.log(e);
 		res.json(responseString);
 		res.end();
 	});
@@ -151,14 +173,19 @@ app.post('/requestValidation/', function(req,res){
 app.post('/message-signature/validate/',function(req,res){
 
 	var responseString ={};
-	var body = req.body;
+	var body = JSON.parse(req.body);
 	var address = body['address'];
 	var signiture = body['signature'];
 	var timeNow = new Date().getTime().toString().slice(0,-3);
 
+
 	blockChain.getWaitingAddress(address).then(function(waitTS){
 
 		var timestamp = waitTS;
+
+		console.log('timeNow:',timeNow);
+		console.log('timestamp:',timestamp);
+
 		var message = address + ':' + timestamp + ':starResistry';
 		responseString.address = address;
 		responseString.requestTimeStamp = timestamp;
@@ -172,14 +199,12 @@ app.post('/message-signature/validate/',function(req,res){
 			}
 
 		responseString.messageSignature= signitureValid;
-
 		res.json(responseString);
-
 		res.end();
 
-
 	}).catch(function(e){
-		res.write('your address request is already expired or not exist. Please request again.');
+		console.log(e);
+		res.write('an error occured.');
 		res.end();
 
 	});
@@ -188,10 +213,12 @@ app.post('/message-signature/validate/',function(req,res){
 
 // Post 
 
-app.post('/block2/', function (req, res) {
+app.post('/block/', function (req, res) {
 
 	// ++++ Receiving the body data	
-	var body = req.body;
+	var body = JSON.parse(req.body);
+
+	console.log('address:',body['address']);
 
 	// ++++ Checking for address validity
 
@@ -286,16 +313,32 @@ app.get('/stars/hash/:HASH', function (req, res) {
 	
 	let hash = req.params.HASH; 
 
+	console.log('hash:',hash);
+
 	blockChain.getBlockHeight().then(function(height){
 	
 		for (let i=0; i<=height;i++){
 			blockChain.getBlock(i).then(function(block){
 				let parsedBlock = JSON.parse(block);
 				//console.log('height:',i,' hash=',parsedBlock.hash, hash);
+				console.log('parsedBlock hash:',parsedBlock.hash, parsedBlock.hash==hash);
+				console.log('registBlock hash:',hash);
 				if (parsedBlock.hash == hash){
 					console.log('hash is matched at:',i);
+					console.log(parsedBlock);
+					//res.json(parsedBlock);
+					//return; 
+					var buf = Buffer.from(parsedBlock.body.star.story, 'hex');
+					console.log('buf:',buf);
+
+					var unhashed = buf.toString('ascii');
+					console.log('unhashed:',unhashed);
+
+					parsedBlock.body.star.story = unhashed;
+
 					res.json(parsedBlock);
-					return; 
+					res.end();
+					
 				}
 	
 			}).catch(function(e){
