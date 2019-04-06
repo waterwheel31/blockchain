@@ -2,19 +2,19 @@ const express = require('express');
 const app = express();
 const simpleChain = require('./simpleChainM3');
 const bodyParser = require('body-parser');
-const bitcoinMessage = require('bitcoinjs-message');
+// const bitcoinMessage = require('bitcoinjs-message');
+
+
 const port = 8000;
 const validateWindowSec = 300;
 
 var requests = {};
 
+
+// Starting Messages 
 console.log('application started!');
 const blockChain = new simpleChain.Blockchain();
-
 app.listen(port, () => console.log('blockchain app listening on port '+ port + '!'));
-
-
-
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.text());
 app.use(bodyParser.json());
@@ -22,11 +22,14 @@ app.use(bodyParser.json());
 
 
 
+// GET message for no parameters
 app.get('/', function (req, res) {
 	res.json('to see a block, please send a GET message to /block/(num)');
 	res.end();
 });
 
+
+// GET and POST  meessage with /block 
 app.get('/block/:id(\\d+)', function (req, res) {
 	
 	let inputId  = req.params.id;
@@ -41,12 +44,22 @@ app.get('/block/:id(\\d+)', function (req, res) {
 	
 });
 
+app.get('/block/:text(\\w+)', function (req, res) {
+	
+	let inputId  = req.params.text;
+	res.write('strings');	
+});
+
 
 
 app.post('/block/', function (req, res) {
 	let blockMessage = req.body;
+
+	console.log('blockMessage', blockMessage);
+	console.log('blockMessage length', blockMessage.length);
+	console.log('params', req.params);
 	
-	if(blockMessage != null){
+	if(blockMessage != null && blockMessage.length > 0){
 		
 		console.log('before Block(blockMessage)');
 		block = new simpleChain.Block(blockMessage);
@@ -56,21 +69,16 @@ app.post('/block/', function (req, res) {
 			console.log('newBlock=',newBlock);
 			res.end();
 
-		});
-		
-
-	
+		});		
+	} else{
+		res.json('body is null!');
+		res.end();
 	}
 	
 });
 
 
-app.get('/block/:text(\\w+)', function (req, res) {
-	
-	let inputId  = req.params.text;
-	res.write('strings');	
-});
-
+// Post message with /requestValidation/ 
 
 app.post('/requestValidation/', function(req,res){
 	
@@ -115,16 +123,9 @@ app.post('/requestValidation/', function(req,res){
 			responseString.requestTimeStamp = waitTS;
 			responseString.message= message;
 			responseString.validationWindow = validateWindowSec - (timestamp-waitTS);
-
 			res.json(responseString);
 			res.end();
-
-
 		}
-
-		
-
-
 
 	}).catch(function(e){
 
@@ -139,15 +140,13 @@ app.post('/requestValidation/', function(req,res){
 
 		res.json(responseString);
 		res.end();
-
-
 	});
-
-
 
 });
 
 
+
+// Post message - signiture validation 
 
 app.post('/message-signature/validate/',function(req,res){
 
@@ -184,9 +183,10 @@ app.post('/message-signature/validate/',function(req,res){
 		res.end();
 
 	});
-
-
 });
+
+
+// Post 
 
 app.post('/block2/', function (req, res) {
 
@@ -228,8 +228,6 @@ app.post('/block2/', function (req, res) {
 				res.end();
 			}
 
-
-
 			let newBlock = new simpleChain.Block(newBlockBody);
 
 
@@ -254,9 +252,10 @@ app.post('/block2/', function (req, res) {
 				res.json('the address is not valid');
 				res.end();
 	});
-
 });
 
+
+// Get message with star address 
 
 app.get('/stars/address/:ADDRESS', function (req, res) {
 	
@@ -280,6 +279,8 @@ app.get('/stars/address/:ADDRESS', function (req, res) {
 
 });
 
+
+// Get message with star hash
 
 app.get('/stars/hash/:HASH', function (req, res) {
 	

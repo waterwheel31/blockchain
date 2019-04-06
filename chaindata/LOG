@@ -1,5 +1,5 @@
-2018/10/23-16:59:04.663 6838 Recovering log #275
-2018/10/23-16:59:04.663 6838 Level-0 table #278: started
-2018/10/23-16:59:04.801 6838 Level-0 table #278: 386 bytes OK
-2018/10/23-16:59:04.908 6838 Delete type=0 #275
-2018/10/23-16:59:04.910 6838 Delete type=3 #273
+2019/04/06-10:55:40.679 5fec Recovering log #428
+2019/04/06-10:55:40.679 5fec Level-0 table #430: started
+2019/04/06-10:55:40.806 5fec Level-0 table #430: 406 bytes OK
+2019/04/06-10:55:41.097 5fec Delete type=0 #428
+2019/04/06-10:55:41.097 5fec Delete type=3 #426
