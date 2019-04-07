@@ -107,7 +107,7 @@ app.post('/requestValidation/', function(req,res){
 	var isExists = 0; 
 
 	var responseString ={};
-	var body = JSON.parse(req.body);
+	var body = JSON.parse(req.body);  // 
 	var address = body['address'];
 	var timestamp = new Date().getTime().toString().slice(0,-3);
 
@@ -284,7 +284,7 @@ app.post('/block/', function (req, res) {
 
 // Get message with star address 
 
-app.get('/stars/address/:ADDRESS', function (req, res) {
+app.get('/stars/address:ADDRESS', function (req, res) {
 	
 	blockChain.validateAddress(req.params.ADDRESS).then(function(height){
 		console.log('height=',height);
@@ -309,7 +309,7 @@ app.get('/stars/address/:ADDRESS', function (req, res) {
 
 // Get message with star hash
 
-app.get('/stars/hash/:HASH', function (req, res) {
+app.get('/stars/hash:HASH', function (req, res) {
 	
 	let hash = req.params.HASH; 
 
